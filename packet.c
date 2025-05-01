@@ -9,7 +9,9 @@
 char *ip_address(){
 	char *hostname = "www.google.com";
 	static char ip[100];
+	// hostent - The ip addresses of a hostname. Used by gethostbyname
 	struct hostent *he;
+	// in_addr - Ip address in long format
 	struct in_addr **addr_list;
 	int i;
 
@@ -21,26 +23,24 @@ char *ip_address(){
 
 	addr_list = (struct in_addr **) he->h_addr_list;
 
+	//Function inet_ntoa will convert an IP address in long format to dotted format. This is just the opposite of inet_addr.
 	for(i = 0; addr_list[i] != NULL; i++){
 		strcpy(ip, inet_ntoa(*addr_list[i]));
 	}
-
 	return ip;
 }
-
-
-
 
 int main(int argc, char *argv[]) 
 {
 	int socket_desc;
+	// sockaddr_in - Connection information. Used by connect , send , recv etc.
 	struct sockaddr_in server;
 	char *ip_addresses = ip_address(); // googles ip address
 	int port = 80; //http port
 	char *message, server_reply[2000];
 	
 
-	//CREATE SOCKET
+	//CREATE SOCKET 
 	socket_desc = socket(AF_INET, SOCK_STREAM, 0);
 	//Address Family - AF_INET (this is IP version 4) 
 	//Type - SOCK_STREAM (this means connection oriented TCP protocol) 
@@ -86,6 +86,3 @@ int main(int argc, char *argv[])
 	return 0;
 
 };
-
-
-
