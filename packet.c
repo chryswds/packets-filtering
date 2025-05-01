@@ -1,15 +1,41 @@
 // setting:
 #include <stdio.h>
 #include <sys/socket.h>
+#include <netdb.h>
 #include <unistd.h>
 #include <string.h>
 #include <arpa/inet.h> //inet_addr
+
+char *ip_address(){
+	char *hostname = "www.google.com";
+	static char ip[100];
+	struct hostent *he;
+	struct in_addr **addr_list;
+	int i;
+
+	if ((he = gethostbyname( hostname )) == NULL){
+		herror("gethostbyname");
+		return NULL;
+		
+	}
+
+	addr_list = (struct in_addr **) he->h_addr_list;
+
+	for(i = 0; addr_list[i] != NULL; i++){
+		strcpy(ip, inet_ntoa(*addr_list[i]));
+	}
+
+	return ip;
+}
+
+
+
 
 int main(int argc, char *argv[]) 
 {
 	int socket_desc;
 	struct sockaddr_in server;
-	char *ip_address = "172.217.23.110"; // googles ip address
+	char *ip_addresses = ip_address(); // googles ip address
 	int port = 80; //http port
 	char *message, server_reply[2000];
 	
@@ -26,7 +52,7 @@ int main(int argc, char *argv[])
 	}
 	printf("Socket created successfully\n");
 
-	server.sin_addr.s_addr = inet_addr(ip_address);
+	server.sin_addr.s_addr = inet_addr(ip_addresses);
 	server.sin_family = AF_INET; //IPv4
 	server.sin_port = htons(port);
 
