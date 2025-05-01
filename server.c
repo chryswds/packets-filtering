@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <string.h>
+#include <unistd.h>
 
 int main(int argc, char *argv[]){
 	int socket_desc, new_socket, c;
 	struct sockaddr_in server, client;
+	char *message;
 
 	//Create socket
 	socket_desc = socket(AF_INET, SOCK_STREAM, 0);
@@ -28,6 +31,7 @@ int main(int argc, char *argv[]){
 
 	listen(socket_desc, 3);
 
+	//Accepts connection
 	puts("Waiting for incoming connections...");
 	c = sizeof(struct sockaddr_in);
 	new_socket = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
@@ -36,6 +40,10 @@ int main(int argc, char *argv[]){
 	}
 
 	puts("connection accepted");
+
+	//Reply to client
+	message = "Hello, I have received your connection. But i have to go now, bye\n"; 
+	write(new_socket, message , strlen(message));
 
 	return 0;
 }
