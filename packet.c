@@ -54,6 +54,8 @@ int main(int argc, char *argv[])
 	}
 	printf("Reply received\n");
 	puts(server_reply);
+	
+	close(socket_desc);
 
 	return 0;
 
