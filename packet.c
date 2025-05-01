@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <string.h>
 #include <arpa/inet.h> //inet_addr
 
 int main(int argc, char *argv[]) 
@@ -10,6 +11,7 @@ int main(int argc, char *argv[])
 	struct sockaddr_in server;
 	char *ip_address = "172.217.23.110"; // googles ip address
 	int port = 80; //http port
+	char *message;
 	
 	socket_desc = socket(AF_INET, SOCK_STREAM, 0);
 	//Address Family - AF_INET (this is IP version 4) 
@@ -34,6 +36,12 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 	printf("connected \n");
+	message = "GET / HTTP/1.1\r\n\r\n";
+	if (send(socket_desc , message, strlen(message), 0) < 0){
+		printf("Send failed");
+		return 1;
+	}
+	printf("Data Send\n");
 	return 0;
 
 };
