@@ -75,15 +75,33 @@ void *connection_handler(void *socket_desc)
 {
 
 	int sock = *(int*)socket_desc;
+	int read_size;
 
-	char *message;
+	char *message, client_message[2000];
 
 
 	message = "Greetings! I am your connection handler\n";
 	write(sock, message, strlen(message));
 
-	message = "Its my duty to communicate with you\n";
+	message = "Type somethiing\n";
 	write(sock, message, strlen(message));
+
+	while(( read_size = recv(sock, client_message, 2000, 0)) > 0)
+	{
+		message = "You said: ";
+		write(sock, message, strlen(message));
+		write(sock, client_message, strlen(client_message));
+	}
+
+	if(read_size == 0)
+	{
+		puts("Client disconnected");
+		fflush(stdout);
+	}
+	else if(read_size == -1)
+	{
+		perror("recv failed");
+	}
 
 	free(socket_desc);
 
