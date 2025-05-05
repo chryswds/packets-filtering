@@ -3,9 +3,14 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
+
+#include <pthread.h>
+
+void *connection_handler(void *);
 
 int main(int argc, char *argv[]){
-	int socket_desc, new_socket, c;
+	int socket_desc, new_socket, c, *new_sock;
 	struct sockaddr_in server, client;
 	char *message;
 
@@ -25,6 +30,7 @@ int main(int argc, char *argv[]){
 	//Bind
 	if ( bind(socket_desc,(struct sockaddr *)&server , sizeof(server)) <0){
 		puts("bind failed");
+		return 1;
 	}
 
 	puts("bind done");
@@ -39,8 +45,21 @@ int main(int argc, char *argv[]){
 		puts("Connection accepted");
 		
 		//Reply to the client
-		message = "Hello Client , I have received your connection. But I have to go now, bye\n";
+		message = "Hello Client , I have received your connection. And now i will assign a handler for you\n";
 		write(new_socket , message , strlen(message));
+
+		pthread_t sniffer_thread;
+		new_sock = malloc(1);
+		*new_sock = new_socket;
+
+
+		if ( pthread_create( &sniffer_thread, NULL, connection_handler , (void*) new_sock) < 0){
+			perror("could not create thread");
+			return 1;
+		}
+
+	pthread_join( sniffer_thread, NULL);
+		puts("Handler assigned");
 	}
 	
 	if (new_socket<0)
@@ -50,4 +69,24 @@ int main(int argc, char *argv[]){
 	}
 
 	return 0;
+}
+
+void *connection_handler(void *socket_desc)
+{
+
+	int sock = *(int*)socket_desc;
+
+	char *message;
+
+
+	message = "Greetings! I am your connection handler\n";
+	write(sock, message, strlen(message));
+
+	message = "Its my duty to communicate with you\n";
+	write(sock, message, strlen(message));
+
+	free(socket_desc);
+
+	return 0;
+
 }
